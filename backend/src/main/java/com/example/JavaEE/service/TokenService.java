@@ -10,12 +10,15 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
+
 import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
 
 import java.security.KeyPair;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -82,5 +85,29 @@ public class TokenService {
             return false;
         }
     }
+    public Set<String> getRolesFromJwtToken(String token) {
+        Claims claims = Jwts.parser()
+                .verifyWith(keyPair.getPublic())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+
+        String scope = claims.get("scope", String.class);
+
+        if (scope == null || scope.isBlank()) {
+            logger.warn("No scope found in JWT token");
+            return Set.of();
+        }
+
+
+        Set<String> roles = Arrays.stream(scope.split("\\s+"))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toSet());
+
+        logger.debug("Extracted roles from JWT token: {}", roles);
+        return roles;
+    }
+
 }
 
