@@ -1,6 +1,7 @@
 package com.example.JavaEE.controller;
 
 import com.example.JavaEE.dto.RegisterRequest;
+import com.example.JavaEE.model.CustomUser;
 import com.example.JavaEE.service.CustomUserService;
 import com.example.JavaEE.service.TokenService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -13,9 +14,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+import java.util.Set;
 
 @RestController
 public class AuthController {
@@ -78,6 +80,17 @@ public class AuthController {
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         return ResponseEntity.noContent().build();
+    }
+
+
+    @GetMapping("/checkRoles")
+    public Map<String, Object> checkRoles(@CookieValue("jwt") String jwt) {
+
+        Set<String> roles = tokenService.getRolesFromJwtToken(jwt);
+
+        return Map.of(
+                "roles", roles
+        );
     }
 
 }

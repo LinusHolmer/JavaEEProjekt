@@ -18,6 +18,7 @@ import java.security.KeyPair;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -102,12 +103,13 @@ public class TokenService {
 
         Set<String> roles = Arrays.stream(scope.split("\\s+"))
                 .map(String::trim)
-                .filter(s -> !s.isEmpty())
+                .filter(s -> s.startsWith("ROLE_"))
+                .map(r -> r.replace("ROLE_", ""))
                 .collect(Collectors.toSet());
 
         logger.debug("Extracted roles from JWT token: {}", roles);
         return roles;
     }
 
-}
+    }
 
