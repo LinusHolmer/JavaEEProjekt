@@ -41,22 +41,22 @@ public class AdminController {
         return adminService.promoteToAdmin(userId);
     }
 
-    // DELETE  ta bort user
-    @DeleteMapping("/users/{userId}")
-    public ResponseEntity<Void> deleteUser(@PathVariable String userId) {
-        adminService.deleteUser(userId);
-    private final AdminService adminService;
-
- 
     @PutMapping("/change-username")
-    public ResponseEntity<Void> changeUsername(@Valid @RequestBody ChangeUsernameDTO changeUsernameDTO) {
+    public ResponseEntity<Void> changeUsername (@Valid @RequestBody ChangeUsernameDTO changeUsernameDTO){
         adminService.changeUsername(changeUsernameDTO);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/change-password")
-    public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordDTO changePasswordDTO) {
+    public ResponseEntity<Void> changePassword (@Valid @RequestBody ChangePasswordDTO changePasswordDTO){
         adminService.changePassword(changePasswordDTO);
+        return ResponseEntity.noContent().build();
+    }
+
+    // DELETE  ta bort user
+    @DeleteMapping("/users/{userId}")
+    public ResponseEntity<Void> deleteUser(@PathVariable String userId) {
+        adminService.deleteUser(userId);
         return ResponseEntity.noContent().build();
     }
 }

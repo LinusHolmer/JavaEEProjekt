@@ -96,9 +96,4 @@ public class AdminService {
 
         customUserRepository.delete(userToDelete);
     }
-
-
-
-  
-
 }
