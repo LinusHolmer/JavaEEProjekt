@@ -8,6 +8,7 @@ import com.example.JavaEE.repository.CustomUserRepository;
 import com.mongodb.DuplicateKeyException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,12 +24,14 @@ import java.util.Set;
 public class CustomUserService {
     private final CustomUserRepository customUserRepository;
     private final PasswordEncoder passwordEncoder;
+    private final TokenService tokenService;
 
 
     @Autowired
-    public CustomUserService(CustomUserRepository customUserRepository, PasswordEncoder passwordEncoder) {
+    public CustomUserService(CustomUserRepository customUserRepository, PasswordEncoder passwordEncoder, TokenService tokenService) {
         this.customUserRepository = customUserRepository;
         this.passwordEncoder = passwordEncoder;
+        this.tokenService = tokenService;
     }
 
     //Kollar först om det finns en användare med samma namn i databasen
@@ -62,6 +65,20 @@ public class CustomUserService {
                 .toList();
 
         return customUsers;
+    }
+
+    public ResponseEntity<Void> checkAuth(String jwt){
+
+        if(jwt == null || jwt.isBlank()){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        if(!tokenService.validateJwtToken(jwt)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        }
+        return ResponseEntity.ok().build();
+
     }
 
 }

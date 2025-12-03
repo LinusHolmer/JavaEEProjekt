@@ -92,5 +92,10 @@ public class AuthController {
         );
     }
 
+    @GetMapping("/auth")
+    public ResponseEntity<Void> auth(@CookieValue("jwt") String jwt) {
+        return service.checkAuth(jwt);
+    }
+
 }
 
