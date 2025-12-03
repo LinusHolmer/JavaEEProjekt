@@ -1,6 +1,7 @@
 package com.example.JavaEE.service;
 
 
+import com.example.JavaEE.dto.CustomUserDTO;
 import com.example.JavaEE.dto.RegisterRequest;
 import com.example.JavaEE.model.CustomUser;
 import com.example.JavaEE.repository.CustomUserRepository;
@@ -10,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 import java.util.Set;
 
 
@@ -46,6 +49,16 @@ public class CustomUserService {
         } catch (DuplicateKeyException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already taken");
         }
+    }
+
+    public List<CustomUserDTO> getUsers() {
+
+        List<CustomUserDTO> customUsers = customUserRepository.findAllBy()
+                .stream()
+                .map(customUser -> new CustomUserDTO(customUser.getUsername(), customUser.getRoles().toString()))
+                .toList();
+
+        return customUsers;
     }
 
 }
