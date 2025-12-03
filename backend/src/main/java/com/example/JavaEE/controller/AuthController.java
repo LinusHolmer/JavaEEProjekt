@@ -83,7 +83,9 @@ public class AuthController {
 
 
     @GetMapping("/checkRoles")
-    public Map<String, Object> checkRoles(@CookieValue("jwt") String jwt) {
+    public Map<String, Object> checkRoles(@RequestHeader("Authorization") String authHeader) {
+
+        String jwt = authHeader.replace("Bearer ", "");
 
         Set<String> roles = tokenService.getRolesFromJwtToken(jwt);
 
@@ -93,7 +95,9 @@ public class AuthController {
     }
 
     @GetMapping("/auth")
-    public ResponseEntity<Void> auth(@CookieValue("jwt") String jwt) {
+    public ResponseEntity<Void> auth(@RequestHeader("Authorization") String authHeader) {
+        String jwt = authHeader.replace("Bearer ", "");
+        // System.out.println("JWT RECEIVED: " + jwt);
         return service.checkAuth(jwt);
     }
 
