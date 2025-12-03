@@ -1,7 +1,6 @@
 package com.example.JavaEE.controller;
 
 import com.example.JavaEE.dto.RegisterRequest;
-import com.example.JavaEE.model.CustomUser;
 import com.example.JavaEE.service.CustomUserService;
 import com.example.JavaEE.service.TokenService;
 import jakarta.servlet.http.HttpServletResponse;

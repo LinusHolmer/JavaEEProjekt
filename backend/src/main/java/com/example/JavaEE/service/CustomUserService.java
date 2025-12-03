@@ -1,6 +1,7 @@
 package com.example.JavaEE.service;
 
 
+import com.example.JavaEE.dto.CustomUserDTO;
 import com.example.JavaEE.dto.RegisterRequest;
 import com.example.JavaEE.model.CustomUser;
 import com.example.JavaEE.repository.CustomUserRepository;
@@ -53,6 +54,15 @@ public class CustomUserService {
         }
     }
 
+    public List<CustomUserDTO> getUsers() {
+
+        List<CustomUserDTO> customUsers = customUserRepository.findAllBy()
+                .stream()
+                .map(customUser -> new CustomUserDTO(customUser.getUsername(), customUser.getRoles().toString()))
+                .toList();
+
+        return customUsers;
+    }
 
 }
 

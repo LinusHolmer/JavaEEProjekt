@@ -8,6 +8,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import com.example.JavaEE.dto.ChangePasswordDTO;
+import com.example.JavaEE.dto.ChangeUsernameDTO;
+import com.example.JavaEE.model.CustomUser;
+import com.example.JavaEE.repository.CustomUserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
@@ -17,10 +24,13 @@ import java.util.Set;
 public class AdminService {
 
     private final CustomUserRepository customUserRepository;
+    private final PasswordEncoder passwordEncoder;
 
 
-    public AdminService(CustomUserRepository customUserRepository){
+    @Autowired
+    public AdminService(CustomUserRepository customUserRepository, PasswordEncoder passwordEncoder) {
         this.customUserRepository = customUserRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     // hämta alla users
@@ -52,6 +62,19 @@ public class AdminService {
         // sparar användaren i databasen och returnar den uppdaterade versionen
         return customUserRepository.save(user);
     }
+  
+   public void changeUsername(ChangeUsernameDTO changeUsernameDTO) {
+        CustomUser customUser = customUserRepository.findByUsername(changeUsernameDTO.username());
+        customUser.setUsername(changeUsernameDTO.newUsername());
+        customUserRepository.save(customUser);
+    }
+
+    public void changePassword(ChangePasswordDTO changePasswordDTO) {
+        CustomUser customUser = customUserRepository.findByUsername(changePasswordDTO.username());
+        customUser.setPassword(passwordEncoder.encode(changePasswordDTO.newPassword()));
+        customUserRepository.save(customUser);
+    }
+  
 
     // tar bort användare
     public void deleteUser(String userId) {
@@ -73,4 +96,9 @@ public class AdminService {
 
         customUserRepository.delete(userToDelete);
     }
+
+
+
+  
+
 }
