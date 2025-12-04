@@ -27,6 +27,7 @@ export default function RegisterPage() {
       if (!response.ok) {
         const errorBody = await response.text();
         setError(errorBody || "Register failed.");
+        alert(error)
         return;
       }
 
@@ -37,6 +38,7 @@ export default function RegisterPage() {
       
     } catch (error) {
       setError("Network error: backend unreachable");
+      alert(error)
     }
   };
 
