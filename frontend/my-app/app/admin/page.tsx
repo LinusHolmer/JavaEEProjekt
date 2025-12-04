@@ -11,9 +11,7 @@ export default function AdminPage() {
     <h1>ADMIN PAGE</h1>
     <CustomButton buttonText={"Change username"} onClick={() => router.push("/adminChangeUsername")}/>
     <CustomButton buttonText={"Change password"} onClick={() => router.push("/adminChangePassword")}/> 
-    <CustomButton buttonText={"Change username"} onClick={() => router.push("/adminChangeUsername")}/>
-    <CustomButton buttonText={"Change username"} onClick={() => router.push("/adminChangeUsername")}/>
-    <CustomButton buttonText={"Change username"} onClick={() => router.push("/adminChangeUsername")}/>
+    <CustomButton buttonText={"More methods"} onClick={() => router.push("/admin/users")}/>
     </main>
   );
   };

@@ -1,0 +1,7 @@
+2025-12-04T18:15:12.798+01:00  INFO 12720 --- [JavaEE] [http-nio-8080-exec-7] com.example.JavaEE.jwt.JwtAuthFilter     : Outgoing response: status=500
+2025-12-04T18:15:13.982+01:00  INFO 12720 --- [JavaEE] [http-nio-8080-exec-5] com.example.JavaEE.jwt.JwtAuthFilter     : Incoming request: GET /checkRoles
+2025-12-04T18:15:13.995+01:00  INFO 12720 --- [JavaEE] [http-nio-8080-exec-5] com.example.JavaEE.jwt.JwtAuthFilter     : Outgoing response: status=200
+2025-12-04T18:15:38.261+01:00  INFO 12720 --- [JavaEE] [http-nio-8080-exec-8] com.example.JavaEE.jwt.JwtAuthFilter     : Incoming request: GET /checkRoles
+2025-12-04T18:15:38.287+01:00  INFO 12720 --- [JavaEE] [http-nio-8080-exec-8] com.example.JavaEE.jwt.JwtAuthFilter     : Outgoing response: status=200
+2025-12-04T18:15:41.522+01:00  INFO 12720 --- [JavaEE] [SpringApplicationShutdownHook] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2025-12-04T18:15:41.527+01:00  INFO 12720 --- [JavaEE] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete

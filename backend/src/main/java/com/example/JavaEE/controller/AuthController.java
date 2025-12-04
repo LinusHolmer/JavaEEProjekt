@@ -93,13 +93,5 @@ public class AuthController {
                 "roles", roles
         );
     }
-
-    @GetMapping("/auth")
-    public ResponseEntity<Void> auth(@RequestHeader("Authorization") String authHeader) {
-        String jwt = authHeader.replace("Bearer ", "");
-        // System.out.println("JWT RECEIVED: " + jwt);
-        return service.checkAuth(jwt);
-    }
-
 }
 

@@ -1,9 +1,13 @@
 package com.example.JavaEE.service;
 
+import com.example.JavaEE.jwt.JwtAuthFilter;
 import com.example.JavaEE.model.CustomUser;
 
 import com.example.JavaEE.repository.CustomUserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -23,6 +27,8 @@ public class AdminService {
 
     private final CustomUserRepository customUserRepository;
     private final PasswordEncoder passwordEncoder;
+
+    private static final Logger logger = LoggerFactory.getLogger(AdminService.class);
 
 
     @Autowired
@@ -58,18 +64,27 @@ public class AdminService {
         user.setRoles(roles);
 
         // sparar användaren i databasen och returnar den uppdaterade versionen
+        logger.info("Successfully promoted user: {} to admin", user.getUsername());
         return customUserRepository.save(user);
     }
   
    public void changeUsername(ChangeUsernameDTO changeUsernameDTO) {
         CustomUser customUser = customUserRepository.findByUsername(changeUsernameDTO.username());
+        if(customUser == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
         customUser.setUsername(changeUsernameDTO.newUsername());
+        logger.info("Changed username {} to username {}", changeUsernameDTO.username(), changeUsernameDTO.newUsername());
         customUserRepository.save(customUser);
     }
 
     public void changePassword(ChangePasswordDTO changePasswordDTO) {
         CustomUser customUser = customUserRepository.findByUsername(changePasswordDTO.username());
+        if(customUser == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
         customUser.setPassword(passwordEncoder.encode(changePasswordDTO.newPassword()));
+        logger.info("Changed password for user: {}", changePasswordDTO.username());
         customUserRepository.save(customUser);
     }
   
@@ -91,7 +106,7 @@ public class AdminService {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You cannot delete yourself");
             }
         }
-
+        logger.info("Successfully deleted user with id: {}", userToDelete.getId());
         customUserRepository.delete(userToDelete);
     }
 }

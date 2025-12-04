@@ -3,19 +3,17 @@ package com.example.JavaEE.service;
 
 import com.example.JavaEE.dto.CustomUserDTO;
 import com.example.JavaEE.dto.RegisterRequest;
+import com.example.JavaEE.jwt.JwtAuthFilter;
 import com.example.JavaEE.model.CustomUser;
 import com.example.JavaEE.repository.CustomUserRepository;
 import com.mongodb.DuplicateKeyException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -25,6 +23,8 @@ public class CustomUserService {
     private final CustomUserRepository customUserRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
+
+    private static final Logger logger = LoggerFactory.getLogger(CustomUserService.class);
 
 
     @Autowired
@@ -49,6 +49,7 @@ public class CustomUserService {
 
         try {
             //sparar användaren
+            logger.info("Successfully created user: {}", customUser.getUsername());
             return customUserRepository.save(customUser);
 
             //Dubbelkollar att 2 användare inte skrivit in samma namn samtidigt
@@ -66,21 +67,6 @@ public class CustomUserService {
 
         return customUsers;
     }
-
-    public ResponseEntity<Void> checkAuth(String jwt){
-
-        if(jwt == null || jwt.isBlank()){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        if(!tokenService.validateJwtToken(jwt)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-
-        }
-        return ResponseEntity.ok().build();
-
-    }
-
 }
 
 
