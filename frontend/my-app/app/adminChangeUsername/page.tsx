@@ -1,13 +1,12 @@
 "use client";
-import { useState } from "react";
-import styles from "../login/login.module.css"
 import { useRouter } from "next/navigation";
-import CustomButton from "../components/CustomButton/CustomButton"
+import CustomButton from "../components/CustomButton/CustomButton";
+import styles from "../login/login.module.css";
+import { useState } from "react";
 
-
-export default function LoginPage() {
+export default function AdminPage() {
   const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [newUsername, setNewUsername] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
   const router = useRouter();
@@ -17,24 +16,23 @@ export default function LoginPage() {
     setSuccess(false);
 
     try {
-      const response = await fetch("http://localhost:8080/login", {
-        method: "POST",
+      const response = await fetch("/api/adminChangeUsername", {
+        method: "PUT",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username, newUsername }),
       });
 
       if (!response.ok) {
         const errorBody = await response.text();
-        setError(errorBody || "Login failed.");
+        setError(errorBody || "Change username failed.");
         alert(error)
         return;
       }
 
       setSuccess(true);
-        alert("Successfully logged in!")
-        router.push('/')
-      
+      alert("Successfully changed username!");
+      router.push("/");
     } catch (error) {
       setError("Network error: backend unreachable");
       alert(error)
@@ -43,7 +41,7 @@ export default function LoginPage() {
 
   return (
     <main className={styles.main}>
-      <form className={styles.form}>
+      <form className={styles.form} onSubmit={(e) => e.preventDefault()}>
         <label className={styles.label}>Username</label>
         <input
           className={styles.input}
@@ -53,17 +51,17 @@ export default function LoginPage() {
           onChange={(e) => setUsername(e.target.value)}
         />
 
-        <label className={styles.label}>Password</label>
+        <label className={styles.label}>New Username</label>
         <input
           className={styles.input}
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          type="text"
+          placeholder="New Username"
+          value={newUsername}
+          onChange={(e) => setNewUsername(e.target.value)}
         />
 
-        <CustomButton buttonText={"Login"} onClick={login} />
-
+        <CustomButton buttonText={"Change Username"} onClick={login} />
+        {error && <p style={{ color: "red" }}>{error}</p>}
       </form>
     </main>
   );
