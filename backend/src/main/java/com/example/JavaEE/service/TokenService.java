@@ -26,15 +26,15 @@ import java.util.stream.Collectors;
 public class TokenService {
 
     private final JwtEncoder jwtEncoder;
+    private final KeyPair keyPair;
+
 
     private static final Logger logger = LoggerFactory.getLogger(TokenService.class);
 
     @Autowired
-    private KeyPair keyPair;
-
-    @Autowired
-    public TokenService(JwtEncoder jwtEncoder) {
+    public TokenService(JwtEncoder jwtEncoder, KeyPair keyPair) {
         this.jwtEncoder = jwtEncoder;
+        this.keyPair = keyPair;
     }
 
     public String generateToken(Authentication authentication) {

@@ -10,11 +10,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import com.example.JavaEE.dto.ChangePasswordDTO;
 import com.example.JavaEE.dto.ChangeUsernameDTO;
-import com.example.JavaEE.model.CustomUser;
-import com.example.JavaEE.repository.CustomUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
+
 
 import java.util.HashSet;
 import java.util.List;

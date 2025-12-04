@@ -2,16 +2,14 @@ package com.example.JavaEE.controller;
 
 import com.example.JavaEE.model.CustomUser;
 import com.example.JavaEE.service.AdminService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import com.example.JavaEE.dto.ChangePasswordDTO;
 import com.example.JavaEE.dto.ChangeUsernameDTO;
-import com.example.JavaEE.service.AdminService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +23,7 @@ public class AdminController {
 
     private final AdminService adminService;
 
+    @Autowired
     public AdminController(AdminService adminService) {
         this.adminService = adminService;
     }
