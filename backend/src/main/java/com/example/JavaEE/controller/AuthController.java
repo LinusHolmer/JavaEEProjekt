@@ -35,7 +35,6 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<String> register(@Valid @RequestBody RegisterRequest registerRequest) {
         service.registerUser(registerRequest);
-
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .build();
@@ -44,53 +43,21 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@Valid @RequestBody RegisterRequest registerRequest) {
-        Authentication auth = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        registerRequest.username(),
-                        registerRequest.password()
-                )
-        );
-
-        String token = tokenService.generateToken(auth);
-
-        ResponseCookie cookie = ResponseCookie.from("jwt", token)
-                .httpOnly(true)
-                .secure(false) // should be true if using https
-                .path("/")
-                .maxAge(60 * 60)
-                .sameSite("Strict")
-                .build();
-
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .header(HttpHeaders.SET_COOKIE, service.loginUser(registerRequest).toString())
                 .build();
-
     }
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletResponse response) {
-        ResponseCookie cookie = ResponseCookie.from("jwt", "")
-                .httpOnly(true)
-                .secure(false) // should be true if using https, but did work?
-                .path("/")
-                .maxAge(0)
-                .sameSite("Strict")
-                .build();
-
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, service.logoutUser().toString());
         return ResponseEntity.noContent().build();
     }
 
-
     @GetMapping("/checkRoles")
     public Map<String, Object> checkRoles(@RequestHeader("Authorization") String authHeader) {
-
-        String jwt = authHeader.replace("Bearer ", "");
-
-        Set<String> roles = tokenService.getRolesFromJwtToken(jwt);
-
         return Map.of(
-                "roles", roles
+                "roles", service.checkRoles(authHeader)
         );
     }
 }

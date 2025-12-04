@@ -43,11 +43,13 @@ public class AdminService {
     }
 
     // promotar till admin
-    public CustomUser promoteToAdmin(String userId) {
+    public void promoteToAdmin(String userId) {
         // Försöker hämta användaren från databasen med ID
         // Om ingen finns kastar man ett 404 not found fel
         CustomUser user = customUserRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+
 
 
         // Hämta roller från användaren
@@ -65,14 +67,16 @@ public class AdminService {
 
         // sparar användaren i databasen och returnar den uppdaterade versionen
         logger.info("Successfully promoted user: {} to admin", user.getUsername());
-        return customUserRepository.save(user);
+        customUserRepository.save(user);
     }
   
    public void changeUsername(ChangeUsernameDTO changeUsernameDTO) {
         CustomUser customUser = customUserRepository.findByUsername(changeUsernameDTO.username());
+
         if(customUser == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
+
         customUser.setUsername(changeUsernameDTO.newUsername());
         logger.info("Changed username {} to username {}", changeUsernameDTO.username(), changeUsernameDTO.newUsername());
         customUserRepository.save(customUser);

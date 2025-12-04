@@ -36,8 +36,9 @@ public class AdminController {
 
     // POST gör user till admin
     @PostMapping("/make-admin/{userId}")
-    public CustomUser makeAdmin(@PathVariable String userId) {
-        return adminService.promoteToAdmin(userId);
+    public ResponseEntity<Void> makeAdmin(@PathVariable String userId) {
+        adminService.promoteToAdmin(userId);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/change-username")
