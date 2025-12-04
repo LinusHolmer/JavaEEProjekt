@@ -5,7 +5,7 @@ export default function UserPage() {
   const [users, setUsers] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch("/api/user", { credentials: "include" })
+    fetch("/api/getUser", { credentials: "include" })
       .then(response => response.json())
       .then(setUsers);
   }, []); 
