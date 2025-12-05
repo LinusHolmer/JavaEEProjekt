@@ -1,0 +1,25 @@
+.buttonContainer{
+    width: 100%;
+}
+
+.button {
+  width: 100%;
+  height: auto;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: none;
+  background-color: #3b82f6;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.button:hover {
+  background-color: #2563eb;
+}
+
+.buttonText {
+    font-weight: bold;
+}
