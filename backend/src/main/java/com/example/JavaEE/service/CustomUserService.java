@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -108,7 +109,12 @@ public class CustomUserService {
 
     }
 
-    public List<CustomUserDTO> getUsers() {
+    @PreAuthorize("hasRole('USER')")
+    public List<CustomUserDTO> getUsers(CustomUser currenUser) {
+
+        if(!currenUser.hasRole("ROLE_USER")) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not enough permissions.");
+        }
 
         List<CustomUserDTO> customUsers = customUserRepository.findAllBy()
                 .stream()

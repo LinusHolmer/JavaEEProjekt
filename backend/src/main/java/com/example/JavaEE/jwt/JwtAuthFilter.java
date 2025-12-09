@@ -6,7 +6,6 @@ import com.example.JavaEE.service.TokenService;
 import com.mongodb.lang.NonNull;
 import jakarta.servlet.FilterChain ;
 import jakarta.servlet.ServletException ;
-import jakarta.servlet.http.Cookie ;
 import jakarta.servlet.http.HttpServletRequest ;
 import jakarta.servlet.http.HttpServletResponse ;
 import org.slf4j.Logger ;
@@ -45,12 +44,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         logger.info("Incoming request: {} {}" , request.getMethod(), request.getRequestURI ());
 
-        String token = extractJwtFromCookie(request);
+        String token = extractJwtFromRequest(request);
         if(token == null) {
-            token = extractJwtFromRequest(request); // fallback to Authorization header
-        }
-
-        if (token == null) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -78,22 +73,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             }
         } else {
             logger.warn("Invalid JWT token");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired JWT");
+            return;
         }
 
         filterChain.doFilter(request, response);
         logger.info("Outgoing response: status={}" , response.getStatus());
         logger.debug("---- JwtAuthenticationFilter END ----");
 
-    }
-
-    private String extractJwtFromCookie(HttpServletRequest request) {
-        if (request.getCookies() == null) return null;
-        for (Cookie cookie : request.getCookies()) {
-            if("authToken".equals(cookie.getName())) {
-                return cookie.getValue();
-            }
-        }
-        return null;
     }
 
     private String extractJwtFromRequest(HttpServletRequest request) {

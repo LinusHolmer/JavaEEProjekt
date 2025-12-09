@@ -56,4 +56,9 @@ public class CustomUser {
     public Set<String> getRoles() { return roles; }
 
     public void setRoles(Set<String> roles) { this.roles = roles; }
+
+    public boolean hasRole(String roleName) {
+        return roles.contains(roleName);
+    }
+
 }
