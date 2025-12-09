@@ -64,6 +64,7 @@ public class AdminService {
         return customUserRepository.save(user);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     public void changeUsername(ChangeUsernameDTO changeUsernameDTO) {
         // Användaren som är inloggad just nu
         CustomUser currentUser = getCurrentUserOrThrow();
@@ -92,6 +93,7 @@ public class AdminService {
                 currentUser.getUsername());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     public void changePassword(ChangePasswordDTO changePasswordDTO) {
 
         CustomUser currentUser = getCurrentUserOrThrow();

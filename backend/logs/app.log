@@ -1,3 +1,5 @@
 2025-12-09T17:10:40.989+01:00  INFO 8656 --- [JavaEE] [http-nio-8080-exec-2] com.example.JavaEE.jwt.JwtAuthFilter     : Outgoing response: status=204
 2025-12-09T17:10:41.877+01:00  INFO 8656 --- [JavaEE] [http-nio-8080-exec-3] com.example.JavaEE.jwt.JwtAuthFilter     : Incoming request: GET /checkRoles
 2025-12-09T17:10:41.892+01:00  WARN 8656 --- [JavaEE] [http-nio-8080-exec-3] com.example.JavaEE.jwt.JwtAuthFilter     : JWT token is expired due to password change for user 'realAdmin'
+2025-12-09T17:15:47.062+01:00  INFO 8656 --- [JavaEE] [SpringApplicationShutdownHook] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2025-12-09T17:15:47.066+01:00  INFO 8656 --- [JavaEE] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
