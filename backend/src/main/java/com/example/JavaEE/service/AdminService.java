@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -41,76 +42,121 @@ public class AdminService {
     public List<CustomUser> getAllUsers() {
         return customUserRepository.findAll();
     }
+    @PreAuthorize("hasRole('ADMIN')")
+    public CustomUser promoteToAdmin(String userId) {
+        CustomUser currentUser = getCurrentUserOrThrow();
+        if (!hasRole(currentUser, "ROLE_ADMIN")) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admins can promote users");
+        }
 
-    // promotar till admin
-    public void promoteToAdmin(String userId) {
-        // Försöker hämta användaren från databasen med ID
-        // Om ingen finns kastar man ett 404 not found fel
         CustomUser user = customUserRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
-
-
-
-        // Hämta roller från användaren
-        // Om användaren inte har några roller än skapar man en tom lista
         Set<String> roles = user.getRoles() == null
                 ? new HashSet<>()
                 : new HashSet<>(user.getRoles());
 
-        // lägg till admin rollen.
-        // Spring använder "ROLE_ADMIN" som standardnamn för admin
         roles.add("ROLE_ADMIN");
-
-        // uppdaterar användarens roll
         user.setRoles(roles);
 
-        // sparar användaren i databasen och returnar den uppdaterade versionen
-        logger.info("Successfully promoted user: {} to admin", user.getUsername());
-        customUserRepository.save(user);
+        logger.info("Successfully promoted user: {} to admin by admin: {}", user.getUsername(), currentUser.getUsername());
+        return customUserRepository.save(user);
     }
-  
-   public void changeUsername(ChangeUsernameDTO changeUsernameDTO) {
-        CustomUser customUser = customUserRepository.findByUsername(changeUsernameDTO.username());
 
-        if(customUser == null) {
+    public void changeUsername(ChangeUsernameDTO changeUsernameDTO) {
+        // Användaren som är inloggad just nu
+        CustomUser currentUser = getCurrentUserOrThrow();
+
+        // Användaren som ska ändras
+        CustomUser targetUser = customUserRepository.findByUsername(changeUsernameDTO.username());
+        if (targetUser == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
 
-        customUser.setUsername(changeUsernameDTO.newUsername());
-        logger.info("Changed username {} to username {}", changeUsernameDTO.username(), changeUsernameDTO.newUsername());
-        customUserRepository.save(customUser);
+
+
+        // Admin får ändra vem som helst
+        boolean isAdmin = hasRole(currentUser, "ROLE_ADMIN");
+
+        if (!isAdmin) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot change another user's username");
+        }
+
+        targetUser.setUsername(changeUsernameDTO.newUsername());
+        customUserRepository.save(targetUser);
+
+        logger.info("Username changed from {} to {} by {}",
+                changeUsernameDTO.username(),
+                changeUsernameDTO.newUsername(),
+                currentUser.getUsername());
     }
 
     public void changePassword(ChangePasswordDTO changePasswordDTO) {
-        CustomUser customUser = customUserRepository.findByUsername(changePasswordDTO.username());
-        if(customUser == null) {
+
+        CustomUser currentUser = getCurrentUserOrThrow();
+
+
+        CustomUser targetUser = customUserRepository.findByUsername(changePasswordDTO.username());
+        if (targetUser == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
-        customUser.setPassword(passwordEncoder.encode(changePasswordDTO.newPassword()));
-        logger.info("Changed password for user: {}", changePasswordDTO.username());
-        customUserRepository.save(customUser);
+
+
+        boolean isAdmin = hasRole(currentUser, "ROLE_ADMIN");
+
+
+        if (!isAdmin) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot change another user's password");
+        }
+
+        targetUser.setPassword(passwordEncoder.encode(changePasswordDTO.newPassword()));
+        customUserRepository.save(targetUser);
+
+        logger.info("Password changed for user {} by {}",
+                targetUser.getUsername(),
+                currentUser.getUsername());
     }
-  
 
-    // tar bort användare
+
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteUser(String userId) {
-
-        // Hitta användaren som ska raderas och m användaren inte finns blir det 404 not found.
         CustomUser userToDelete = customUserRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
-        // hindrar att ta bort sig själv
-        // Hämta användaren som är inloggad just nu (auth kommer från Jwt)
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null) {
-            String currentUsername = auth.getName();
-            CustomUser currentUser = customUserRepository.findByUsername(currentUsername);
-            if (currentUser != null && currentUser.getId().equals(userToDelete.getId())) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You cannot delete yourself");
-            }
+        CustomUser currentUser = getCurrentUserOrThrow();
+
+        // hindra att ta bort sig själv
+        if (currentUser.getId().equals(userToDelete.getId())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You cannot delete yourself");
         }
-        logger.info("Successfully deleted user with id: {}", userToDelete.getId());
+
+        if (!hasRole(currentUser, "ROLE_ADMIN")) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admins can delete users");
+        }
+
+        if (hasRole(userToDelete, "ROLE_ADMIN")) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot delete an admin user");
+        }
+
+        logger.info("Successfully deleted user with id: {} by admin: {}", userToDelete.getId(), currentUser.getUsername());
         customUserRepository.delete(userToDelete);
     }
+
+    private CustomUser getCurrentUserOrThrow() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+        }
+
+        CustomUser currentUser = customUserRepository.findByUsername(auth.getName());
+        if (currentUser == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Current user not found");
+        }
+        return currentUser;
+    }
+
+    private boolean hasRole(CustomUser user, String role) {
+        return user.getRoles() != null && user.getRoles().contains(role);
+    }
+
 }
