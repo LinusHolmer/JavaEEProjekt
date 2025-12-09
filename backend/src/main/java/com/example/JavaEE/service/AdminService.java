@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -109,6 +110,7 @@ public class AdminService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot change another user's password");
         }
 
+        targetUser.setLastPasswordChange(Instant.now());
         targetUser.setPassword(passwordEncoder.encode(changePasswordDTO.newPassword()));
         customUserRepository.save(targetUser);
 

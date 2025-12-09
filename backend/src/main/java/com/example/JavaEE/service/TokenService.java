@@ -1,6 +1,9 @@
 package com.example.JavaEE.service;
 
+import com.example.JavaEE.model.CustomUser;
+import com.example.JavaEE.repository.CustomUserRepository;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -30,11 +33,13 @@ public class TokenService {
 
 
     private static final Logger logger = LoggerFactory.getLogger(TokenService.class);
+    private final CustomUserRepository customUserRepository;
 
     @Autowired
-    public TokenService(JwtEncoder jwtEncoder, KeyPair keyPair) {
+    public TokenService(JwtEncoder jwtEncoder, KeyPair keyPair, CustomUserRepository customUserRepository) {
         this.jwtEncoder = jwtEncoder;
         this.keyPair = keyPair;
+        this.customUserRepository = customUserRepository;
     }
 
     public String generateToken(Authentication authentication) {
@@ -44,12 +49,16 @@ public class TokenService {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(" "));
 
+        CustomUser customUser = customUserRepository.findByUsername(authentication.getName());
+        Instant lastPasswordChange = customUser.getLastPasswordChange();
+
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("self")
                 .issuedAt(now)
                 .expiresAt(now.plus(1, ChronoUnit.HOURS))
                 .subject(authentication.getName())
                 .claim("scope", scope)
+                .claim("lastPasswordChange", lastPasswordChange.toString())
                 .build();
 
         logger.info("JWT generated successfully for user: {}", authentication.getName());
@@ -68,6 +77,7 @@ public class TokenService {
             logger.debug("Extracted username '{}' from JWT token", username);
             return username;
         } catch (Exception e) {
+            logger.warn("getUsernameFromJwtToken failed");
             return null;
         }
     }
@@ -109,6 +119,27 @@ public class TokenService {
 
         logger.debug("Extracted roles from JWT token: {}", roles);
         return roles;
+    }
+
+    public Instant getLastPasswordChangeFromToken(String token) {
+        try {
+            Claims claims = Jwts.parser()
+                    .verifyWith(keyPair.getPublic())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+
+            String lastChange = claims.get("lastPasswordChange", String.class);
+            if (lastChange == null) {
+                return null;
+            }
+
+            return Instant.parse(lastChange);
+
+        } catch (Exception e) {
+            logger.warn("getLastPasswordChangeFromToken failed!");
+            return null;
+        }
     }
 
     }

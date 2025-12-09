@@ -4,6 +4,8 @@ package com.example.JavaEE.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,14 +21,25 @@ public class CustomUser {
 
     private Set<String> roles = new HashSet<>();
 
+    private Instant lastPasswordChange = Instant.now();
+
 
     public CustomUser() {
     }
 
-    public CustomUser(String password, String username, Set<String> roles) {
+    public CustomUser(String password, String username, Set<String> roles, Instant lastPasswordChange) {
         this.password = password;
         this.username = username;
         this.roles = roles;
+        this.lastPasswordChange = lastPasswordChange;
+    }
+
+    public Instant getLastPasswordChange() {
+        return lastPasswordChange;
+    }
+
+    public void setLastPasswordChange(Instant lastPasswordChange) {
+        this.lastPasswordChange = lastPasswordChange;
     }
 
     public String getUsername() {

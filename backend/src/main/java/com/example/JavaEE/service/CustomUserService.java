@@ -53,6 +53,7 @@ public class CustomUserService {
         customUser.setPassword(passwordEncoder.encode(registerRequest.password()));
         customUser.setRoles(Set.of("ROLE_USER"));
 
+
         try {
             //sparar användaren
             logger.info("Successfully created user: {}", customUser.getUsername());
